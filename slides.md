@@ -42,7 +42,7 @@ transition: fade-out
 
 <v-click>
 <div v-motion-fade class="absolute inset-0 flex justify-center items-center">
-  <p class="text-6xl! rotate--20 max-w-440px bg-black border-white b-10 p-3 text-center">
+  <p class="text-6xl! rotate--20 max-w-440px dark:bg-black light:bg-white light:text-black dark:text-white light:border-black dark:border-white b-10 p-3 text-center">
   Многа букав - мало смысла
   </p>
 </div>
@@ -57,6 +57,7 @@ transition: fade-out
 
 
 <!--
+Тема изотерична
 Архитектура - это сложность изменения проекта
 
 Architecture moment:
@@ -355,7 +356,7 @@ typesafety:
 
 можно класть в seachParams сложные структуры данных, они будут превращены в json
 можно использовать селекторы для парамсов - всё по взрослому
- -->
+-->
 
 ---
 
@@ -447,13 +448,42 @@ layoutClass: 'gap-16'
 
 # `useState`
 
+```tsx{*|2-3|7-19|*}
+function LoginForm() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  return (
+    <form>
+      <input
+        value={username}
+        onChange={e => setUsername(e.target.value)}
+        name="username"
+        type="text"
+      />
+      <br />
+      <input
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+        name="password"
+        type="password"
+      />
+      {/* form continue */}
+    </form>
+  );
+}
+```
+
 
 
 ::right::
 
-# `useReducer`
+<h1 v-click><code>useReducer</code></h1>
 
-
+<v-click>
+<img alt="alt text" src="/image-1.png" />
+Редьюсеры такие большие, что не помещаются на слайды
+</v-click>
 
 <!-- 
 `useState`: подходит для биндинга данных в инпуты, реализации несложной client side логики
@@ -464,539 +494,637 @@ layoutClass: 'gap-16'
 Наш код превращается в спагетти. Ментальное состояние работяг, которые до этого дотрагиваются значительно страдает. 
 Нам может захотеться использовать redux, хотя наши данные не явяляются глобальными и здесь хватит `useReducer`-а
 -->
----
-layout: two-cols
-layoutClass: gap-16
 
 ---
 
-# Table of contents
+## React Context - не для стейт менеджмента
 
-You can use the `Toc` component to generate a table of contents for your slides:
 
-```html
-<Toc minDepth="1" maxDepth="1"></Toc>
+```jsx
+export const App = () => {
+  const [value, setValue] = React.useState('left');
+
+  return (
+    <ToggleGroup.Root
+      type="single"
+      value={value}
+      onValueChange={(value) => {
+        if (value) setValue(value);
+      }}
+    >
+      <ToggleGroup.Item value="left">
+        <TextAlignLeftIcon />
+      </ToggleGroup.Item>
+      <ToggleGroup.Item value="center">
+        <TextAlignCenterIcon />
+      </ToggleGroup.Item>
+      <ToggleGroup.Item value="right">
+        <TextAlignRightIcon />
+      </ToggleGroup.Item>
+    </ToggleGroup.Root>
+  );
+};
 ```
 
-The title will be inferred from your slide content, or you can override it with `title` and `level` in your frontmatter.
-
-::right::
-
-<Toc v-click minDepth="1" maxDepth="2"></Toc>
-
----
-
-layout: image-right
-image: https://cover.sli.dev
-
----
-
-# Code
-
-Use code snippets and get the highlighting directly, and even types hover![^1]
-
-```ts {all|5|7|7-8|10|all} twoslash
-// TwoSlash enables TypeScript hover information
-// and errors in markdown code blocks
-// More at https://shiki.style/packages/twoslash
-
-import { computed, ref } from "vue";
-
-const count = ref(0);
-const doubled = computed(() => count.value * 2);
-
-doubled.value = 2;
-```
-
-<arrow v-click="[4, 5]" x1="350" y1="310" x2="195" y2="334" color="#953" width="2" arrowSize="1" />
-
-<!-- This allow you to embed external code blocks -->
-
-<<< @/snippets/external.ts#snippet
-
-<!-- Footer -->
-
-[^1]: [Learn More](https://sli.dev/guide/syntax.html#line-highlighting)
-
-<!-- Inline style -->
-<style>
-.footnotes-sep {
-  @apply mt-5 opacity-10;
-}
-.footnotes {
-  @apply text-sm opacity-75;
-}
-.footnote-backref {
-  display: none;
-}
-</style>
 
 <!--
-Notes can also sync with clicks
+Контекст - это очень плохой инструмент для стейт менеджмента
+Почему?
+Контекст решает обновлять ли подписчиков через ссылочное сравнение. соотвественно, если у нас поменялось одно из 10 свойств в объекте, то мы получим новую ссылку. А значит даже те слушатели которые н слушатели контекста будут перезапущены. пойдём ререндерить все места где не пользовались этим свойствам перерендерятся. Контекст не поддерживает селекторы и до тех пор пока не начнёт - мы будем вынуждены использовать подходы с несколькими контекстами, но разделять один контекст с 10 полями на 10 контекстов каждый из которых отвечает за свой - вы не захотите: https://github.com/reactjs/rfcs/pull/119
 
-[click] This will be highlighted after the first click
 
-[click] Highlighted with `count = ref(0)`
+контекст чтобы не пропдриллить и контекст для контекста
 
-[click:3] Last click (skip two clicks)
+Ещё контекст съедобен для уменьшения пропс дриллинга, но если не создавать большую вложенность у нас этой проблемы и не будет
+Если мы хотим создавать компоненты, которые можно будет композировать и расширять без бесконечного добавления лишних пропросв. То нам пригодиться Context для того, чтобы вложеннные компоненты знали о состоянии родителя 
+
+Контекст хорош для проверки гипотез и позволяет отсрочить момент добавления стейтменеджера, если знать что делаешь
+-->
+---
+
+# Task oriented стейтменеджеры
+
+Решения шалонных задач:
+- кэши для запросов ([`@tanstack/react-query`](https://tanstack.com/query/v5), [`swr`](https://swr.vercel.app/))
+- стейтменеджеры для форм ([`react-hook-form`](https://react-hook-form.com/))
+- универсальный стейтменеджер ([`nanostores`](https://github.com/nanostores/nanostores))
+- performance first стейтменеджеры (preact-signals, legend-state)
+- стейтменеджеры для анимаций (framer-motion, react-spring)
+
+<!--
+Если мы делаем client side приложение, то скорее всего у нас есть более сложные задачи, чем забиндить поля в инпуты
+
+как правило у нас есть работа с асинхронщиной 
+порой у нас есть сложные формы
+иногда нам нужно писать логику так, чтобы она работала с любым фреймворком
+порой нам хочется чтобы React не делал лишней работы
+иногда нам надо реализовать анимации
+
 -->
 
 ---
 
-## level: 2
-
-# Shiki Magic Move
-
-Powered by [shiki-magic-move](https://shiki-magic-move.netlify.app/), Slidev supports animations across multiple code snippets.
-
-Add multiple code blocks and wrap them with <code>````md magic-move</code> (four backticks) to enable the magic move. For example:
+# Кэш менеджеры
 
 ````md magic-move
-```ts {*|2|*}
-// step 1
-const author = reactive({
-  name: "John Doe",
-  books: [
-    "Vue 2 - Advanced Guide",
-    "Vue 3 - Basic Guide",
-    "Vue 4 - The Mystery",
-  ],
-});
-```
-
-```ts {*|1-2|3-4|3-4,8}
-// step 2
-export default {
-  data() {
-    return {
-      author: {
-        name: "John Doe",
-        books: [
-          "Vue 2 - Advanced Guide",
-          "Vue 3 - Basic Guide",
-          "Vue 4 - The Mystery",
-        ],
-      },
-    };
-  },
-};
-```
-
 ```ts
-// step 3
-export default {
-  data: () => ({
-    author: {
-      name: "John Doe",
-      books: [
-        "Vue 2 - Advanced Guide",
-        "Vue 3 - Basic Guide",
-        "Vue 4 - The Mystery",
-      ],
-    },
-  }),
-};
+import { useQuery } from '@tanstack/react-query'
+
+const Todos = () => {
+	const { data, isLoading } = useQuery({
+		queryFn: () => fetchTodos(),
+		queryKey: ['todos']
+	})
+  // ...
+}
 ```
+```ts
+import { useQuery } from '@tanstack/react-query'
 
-Non-code blocks are ignored.
+const todosOptions = queryOptions({
+	queryFn: () => fetchTodos(),
+	queryKey: ['todos']
+})
 
-```vue
-<!-- step 4 -->
-<script setup>
-const author = {
-  name: "John Doe",
-  books: [
-    "Vue 2 - Advanced Guide",
-    "Vue 3 - Basic Guide",
-    "Vue 4 - The Mystery",
-  ],
-};
-</script>
+const Todos = () => {
+	const {data, isLoading} = useQuery(todosOptions)
+	// ...
+}
+```
+```ts{*|17}
+import { useQuery } from '@tanstack/react-query'
+
+const todosOptions = queryOptions({
+	queryFn: () => fetchTodos(),
+	queryKey: ['todos']
+})
+
+const Todos = () => {
+	const {data, isLoading} = useQuery(todosOptions)
+	// ...
+}
+
+const TodosCounter = () => {
+	const {data, isLoading} = useQuery({
+		...todosOptions,
+		// subscribing only to part of state
+		select: todosData => todosData.count
+	})
+	// ...
+}
 ```
 ````
 
----
-
-# Components
-
-<div grid="~ cols-2 gap-4">
-<div>
-
-You can use Vue components directly inside your slides.
-
-We have provided a few built-in components like `<Tweet/>` and `<Youtube/>` that you can use directly. And adding your custom components is also super easy.
-
-```html
-<Counter :count="10" />
-```
-
-<!-- ./components/Counter.vue -->
-<Counter :count="10" m="t-4" />
-
-Check out [the guides](https://sli.dev/builtin/components.html) for more.
-
-</div>
-<div>
-
-```html
-<Tweet id="1390115482657726468" />
-```
-
-<Tweet id="1390115482657726468" scale="0.65" />
-
-</div>
-</div>
 
 <!--
-Presenter note with **bold**, *italic*, and ~~striked~~ text.
+В наших приложениях мы часто совершаем асинхронные действия. Хорошие биндинги в реакт - не просто написать
+Если у нас 3 запроса и больше точно не будет, то нам вероятно не нужны кэшмедеджеры. Мы можем их зашарить в контексте по приложению
 
-Also, HTML elements are valid:
-<div class="flex w-full">
-  <span style="flex-grow: 1;">Left content</span>
-  <span>Right content</span>
-</div>
+Если у вас REST - то 3 буква - это State, то мы можем нам достаточно кешировать данные которые нам приходят с бэка. 
+И управлять этими кешами
+
+Чем больше приложение, тем больше гибкости в этом вопросе нам необходимо:
+Для маленьких приложений подойдёт swr - он довольно компактный, но не ультра гибкий
+
+Расширяемость = @tanstack/react-query
+
+Не забывайте про мутации, они не менее важны чем query
 -->
 
 ---
 
-## class: px-20
+# Формменеджеры
 
-# Themes
+```tsx
+import { useForm, SubmitHandler } from "react-hook-form"
 
-Slidev comes with powerful theming support. Themes can provide styles, layouts, components, or even configurations for tools. Switching between themes by just **one edit** in your frontmatter:
-
-<div grid="~ cols-2 gap-2" m="t-2">
-
-```yaml
----
-theme: default
----
-```
-
-```yaml
----
-theme: seriph
----
-```
-
-<img border="rounded" src="https://github.com/slidevjs/themes/blob/main/screenshots/theme-default/01.png?raw=true" alt="">
-
-<img border="rounded" src="https://github.com/slidevjs/themes/blob/main/screenshots/theme-seriph/01.png?raw=true" alt="">
-
-</div>
-
-Read more about [How to use a theme](https://sli.dev/themes/use.html) and
-check out the [Awesome Themes Gallery](https://sli.dev/themes/gallery.html).
-
----
-
-# Clicks Animations
-
-You can add `v-click` to elements to add a click animation.
-
-<div v-click>
-
-This shows up when you click the slide:
-
-```html
-<div v-click>This shows up when you click the slide.</div>
-```
-
-</div>
-
-<br>
-
-<v-click>
-
-The <span v-mark.red="3"><code>v-mark</code> directive</span>
-also allows you to add
-<span v-mark.circle.orange="4">inline marks</span>
-, powered by [Rough Notation](https://roughnotation.com/):
-
-```html
-<span v-mark.underline.orange>inline markers</span>
-```
-
-</v-click>
-
-<div mt-20 v-click>
-
-[Learn More](https://sli.dev/guide/animations#click-animations)
-
-</div>
-
----
-
-# Motions
-
-Motion animations are powered by [@vueuse/motion](https://motion.vueuse.org/), triggered by `v-motion` directive.
-
-```html
-<div
-  v-motion
-  :initial="{ x: -80 }"
-  :enter="{ x: 0 }"
-  :click-3="{ x: 80 }"
-  :leave="{ x: 1000 }"
->
-  Slidev
-</div>
-```
-
-<div class="w-60 relative">
-  <div class="relative w-40 h-40">
-    <img
-      v-motion
-      :initial="{ x: 800, y: -100, scale: 1.5, rotate: -50 }"
-      :enter="final"
-      class="absolute inset-0"
-      src="https://sli.dev/logo-square.png"
-      alt=""
-    />
-    <img
-      v-motion
-      :initial="{ y: 500, x: -100, scale: 2 }"
-      :enter="final"
-      class="absolute inset-0"
-      src="https://sli.dev/logo-circle.png"
-      alt=""
-    />
-    <img
-      v-motion
-      :initial="{ x: 600, y: 400, scale: 2, rotate: 100 }"
-      :enter="final"
-      class="absolute inset-0"
-      src="https://sli.dev/logo-triangle.png"
-      alt=""
-    />
-  </div>
-
-  <div
-    class="text-5xl absolute top-14 left-40 text-[#2B90B6] -z-1"
-    v-motion
-    :initial="{ x: -80, opacity: 0}"
-    :enter="{ x: 0, opacity: 1, transition: { delay: 2000, duration: 1000 } }">
-    Slidev
-  </div>
-</div>
-
-<!-- vue script setup scripts can be directly used in markdown, and will only affects current page -->
-<script setup lang="ts">
-const final = {
-  x: 0,
-  y: 0,
-  rotate: 0,
-  scale: 1,
-  transition: {
-    type: 'spring',
-    damping: 10,
-    stiffness: 20,
-    mass: 2
-  }
-}
-</script>
-
-<div
-  v-motion
-  :initial="{ x:35, y: 30, opacity: 0}"
-  :enter="{ y: 0, opacity: 1, transition: { delay: 3500 } }">
-
-[Learn More](https://sli.dev/guide/animations.html#motion)
-
-</div>
-
----
-
-# LaTeX
-
-LaTeX is supported out-of-box powered by [KaTeX](https://katex.org/).
-
-<br>
-
-Inline $\sqrt{3x-1}+(1+x)^2$
-
-Block
-
-$$
-{1|3|all}
-\begin{array}{c}
-
-\nabla \times \vec{\mathbf{B}} -\, \frac1c\, \frac{\partial\vec{\mathbf{E}}}{\partial t} &
-= \frac{4\pi}{c}\vec{\mathbf{j}}    \nabla \cdot \vec{\mathbf{E}} & = 4 \pi \rho \\
-
-\nabla \times \vec{\mathbf{E}}\, +\, \frac1c\, \frac{\partial\vec{\mathbf{B}}}{\partial t} & = \vec{\mathbf{0}} \\
-
-\nabla \cdot \vec{\mathbf{B}} & = 0
-
-\end{array}
-$$
-
-<br>
-
-[Learn more](https://sli.dev/guide/syntax#latex)
-
----
-
-# Diagrams
-
-You can create diagrams / graphs from textual descriptions, directly in your Markdown.
-
-<div class="grid grid-cols-4 gap-5 pt-4 -mb-6">
-
-```mermaid {scale: 0.5, alt: 'A simple sequence diagram'}
-sequenceDiagram
-    Alice->John: Hello John, how are you?
-    Note over Alice,John: A typical interaction
-```
-
-```mermaid {theme: 'neutral', scale: 0.8}
-graph TD
-B[Text] --> C{Decision}
-C -->|One| D[Result 1]
-C -->|Two| E[Result 2]
-```
-
-```mermaid
-mindmap
-  root((mindmap))
-    Origins
-      Long history
-      ::icon(fa fa-book)
-      Popularisation
-        British popular psychology author Tony Buzan
-    Research
-      On effectiveness<br/>and features
-      On Automatic creation
-        Uses
-            Creative techniques
-            Strategic planning
-            Argument mapping
-    Tools
-      Pen and paper
-      Mermaid
-```
-
-```plantuml {scale: 0.7}
-@startuml
-
-package "Some Group" {
-  HTTP - [First Component]
-  [Another Component]
+interface IFormInput {
+  firstName: string
+  lastName: string
 }
 
-node "Other Groups" {
-  FTP - [Second Component]
-  [First Component] --> FTP
-}
+export default function App() {
+  const { register, handleSubmit } = useForm<IFormInput>()
+  const onSubmit: SubmitHandler<IFormInput> = (data) => console.log(data)
 
-cloud {
-  [Example 1]
-}
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <label>First Name</label>
+      <input {...register("firstName")} />
+      <label>Last name</label>
+      <input {...register("lastName")} />
 
-database "MySql" {
-  folder "This is my folder" {
-    [Folder 3]
-  }
-  frame "Foo" {
-    [Frame 4]
-  }
-}
-
-[Another Component] --> [Example 1]
-[Example 1] --> [Folder 3]
-[Folder 3] --> [Frame 4]
-
-@enduml
-```
-
-</div>
-
-[Learn More](https://sli.dev/guide/syntax.html#diagrams)
-
----
-
-foo: bar
-dragPos:
-square: 662,31,167,\_,-16
-
----
-
-# Draggable Elements
-
-Double-click on the draggable elements to edit their positions.
-
-<br>
-
-###### Directive Usage
-
-```md
-<img v-drag="'square'" src="https://sli.dev/logo.png">
-```
-
-<br>
-
-###### Component Usage
-
-```md
-<v-drag text-3xl>
-  <carbon:arrow-up />
-  Use the `v-drag` component to have a draggable container!
-</v-drag>
-```
-
-<v-drag pos="647,198,236,_,-22">
-  <div text-center text-3xl border border-main rounded>
-    Double-click me!
-  </div>
-</v-drag>
-
-<img v-drag="'square'" src="https://sli.dev/logo.png">
-
----
-
-src: ./pages/multiple-entries.md
-hide: false
-
----
-
----
-
-# Monaco Editor
-
-Slidev provides built-in Monaco Editor support.
-
-Add `{monaco}` to the code block to turn it into an editor:
-
-```ts {monaco}
-import { ref } from "vue";
-import { emptyArray } from "./external";
-
-const arr = ref(emptyArray(10));
-```
-
-Use `{monaco-run}` to create an editor that can execute the code directly in the slide:
-
-```ts {monaco-run}
-import { version } from "vue";
-import { emptyArray, sayHello } from "./external";
-
-sayHello();
-console.log(`vue ${version}`);
-console.log(
-  emptyArray<number>(10).reduce(
-    (fib) => [...fib, fib.at(-1)! + fib.at(-2)!],
-    [1, 1]
+      <input type="submit" />
+    </form>
   )
-);
+}
 ```
 
+<!-- 
+Если мы будем лепить форму при помощи `useState`, с валидацией ошибок и множеством полей, то мы получим медленное спаггети. 
+Резко возрастает желание написать свой собственный formmanager. 
+В этот момент стоит остановиться, отдышаться и подумать о существующих решениях
+
+`react-hook-form`
+решает вопросы производительного биндинга инпутов при помощи Controller и register для инпутов
+Решает вопросы валидации. У нас из коробки есть интеграции с библиотеками для валидации. Мне нравится Zod так как он гарантирует type-safety
+Но если у вас на беке валидация инпутов написанна на json schema, то можно взять ajv и использовать как валидатор
+ -->
+
+
 ---
 
-layout: center
-class: text-center
+## Универстальный стейтменеджер (nanostores)
+
+- маленький размер
+- простой API
+
+````md magic-move
+```tsx
+import { atom } from 'nanostores'
+
+export const $users = atom<User[]>([])
+
+export function addUser(user: User) {
+  $users.set([...$users.get(), user]);
+}
+```
+```tsx
+import { atom, computed } from 'nanostores'
+
+export const $users = atom<User[]>([])
+
+export function addUser(user: User) {
+  $users.set([...$users.get(), user]);
+}
+
+const admins = computed($users, users => users.filter(user => user.role === 'admin'))
+```
+```tsx
+import { atom, computed } from 'nanostores'
+import { useStore } from '@nanostores/react'
+
+export const $users = atom<User[]>([])
+
+export function addUser(user: User) {
+  $users.set([...$users.get(), user]);
+}
+
+const admins = computed($users, users => users.filter(user => user.role === 'admin'))
+
+export const Admins = () => {
+  const admins = useStore($admins)
+  return (
+    <ul>
+      {admins.map(user => <UserItem user={user} />)}
+    </ul>
+  )
+}
+```
+````
+
+
+<!-- 
+Как и любое детище андерея ситника с приставкой nano: nanostores оптимизирован под размер. Это ведёт к ряду преимуществ и недостатков:
+
+- маленький оверхед от [загрузки библиотеки](https://bundlephobia.com/package/nanostores@0.10.3) (2k, tree shakable)
+- API минимален, но несмотря на это его достаточно для реализации логики приложения. С точки зрения выразительности nanostores лучше чем большие библиотеки, чем jotai или recoil
+
+
+
+Если у нас есть несколько проектов, которые должны шарить какую-то изолированную функциональность - мы реализуем её на уровне nanostores и не паримся о том, как это будет работать с каким либо из нашим фреймворком. 
+Либо можно использовать если мы пишем приложение на island architecture и используем разные фреймворки - мы просто сможем импортировать стор и использовать его в любом из них
+
+Уже существует аналог tanstack query, router, i18n реализованный при помощи nanostores
+У всех этих тулзовин есть минус - меньше фич и хуже тулинг
+ -->
+ 
+---
+
+# Performance first statemanagement (preact-signals)
+
+
+````md magic-move
+```tsx
+import { signal } from '@preact/signals'
+
+const applesPrice = signal(0.69)
+const applesQuantity = signal(4)
+```
+```tsx
+import { signal, computed } from '@preact/signals'
+
+const applesPrice = signal(0.69)
+const applesQuantity = signal(4)
+
+const applesTotal = computed(() => applesPrice.value * applesQuantity.value)
+```
+```tsx
+import { signal, computed } from '@preact/signals'
+
+const applesPrice = signal(0.69)
+const applesQuantity = signal(4)
+
+const applesTotal = computed(() => applesPrice.value * applesQuantity.value)
+
+// inflation
+setInterval(() => {
+  applesPrice.value = applesPrice.value * 1.01
+}, 2_000)
+```
+```tsx
+import { signal, computed } from '@preact/signals'
+
+const applesPrice = signal(0.69)
+const applesQuantity = signal(4)
+
+const applesTotal = computed(() => applesPrice.value * applesQuantity.value)
+
+// inflation
+setInterval(() => {
+  applesPrice.value = applesPrice.value * 1.01
+}, 2_000)
+
+export const ApplesTotal = () => <p>Total: {applesTotal.value}</p>
+```
+````
+
+
+<!-- 
+Если хотим иметь гранулярный контроль над ререндерами - мы можем воспользоваться preact signals
+
+Это система реактивности, которая [весит](https://bundlephobia.com/package/@preact/signals-react@2.0.1) 2.4 kB. Что рекордно низкий размер для системы реактивности с динамическим треккингом зависимостей. Сделано с фокусом на производительность
+
+Ограничение: 
+- для удобной интеграции с react нужен build step, скорее всего он у вас уже есть
+ -->
+---
+layout: two-cols-header
+layoutClass: 'grid-rows-[auto_1fr]!'
+---
+
+# Избегаем старьё
+
+::left::
+
+## Redux
+
+::right::
+
+## Mobx
+
+````md magic-move
+```ts
+import { makeObservable, observable, action } from "mobx"
+
+class Doubler {
+    value = 0
+
+    constructor() {
+        makeObservable(this, {
+            value: observable,
+            increment: action
+        })
+    }
+
+    increment() {
+        // Intermediate states will 
+        // not become visible to observers.
+        this.value++
+        this.value++
+    }
+}
+```
+```ts
+import { makeAutoObservable } from "mobx"
+
+class Doubler {
+    value = 0
+
+    constructor() {
+        makeAutoObservable(this)
+    }
+
+    increment() {
+        this.value++
+        this.value++
+    }
+}
+```
+```ts
+import { observable, action } from "mobx"
+
+class Doubler {
+    @observable value = 0
+
+    @action
+    increment() {
+        this.value++
+        this.value++
+    }
+}
+```
+```ts
+import { observable, runInAction } from "mobx"
+
+const state = observable({ value: 0 })
+
+runInAction(() => {
+    state.value++
+    state.value++
+})
+```
+````
+
+
+
+<!-- 
+Не берём старьё
+
+редакс - нет спасибо. Решение минувшей эпохи.
+Описывать всё в редьюсерах вербозно. Сложно по типам. Неоптимально по производительности.
+Большой стор + перевычисление селекторов = медленное приложение
+
+Redux -> Zustand | Toolkit
+
+мобх 
+Первая мейнстримная реализация реактивного стейтменеджмента для реакт. На момент 2016 была прорывная. Это стало возможным благодаря появлению Proxy объектов в ES6, но на текущий момент библиотека кажется устаревшей. Вес в 17 кб
+10 равноправных вариаций синтаксиса для создания стейта
+[[смотрим слайдики]]
+Зачем так сложно - не понятно. Есть ещё вариант на декораторах, на legacy decorators, но для 4-ой версии mobx
+ -->
+
+---
+class: 'text-center'
+---
+
+## Болячки mobx
+
+![alt text](/image-2.png){class="max-h-full mx-auto w-1/2 object-scale-down"}
+
+
+<!-- 
+На сайте указан миллион ограничений библиотеки. Большая часть из которых связана с тем, что фактом использования классов и прототипным наследованием и миллионом синтаксисов. Вероятно это было плохое design решение
+
+
+1. Компоненты теряют displayName
+2. Можно забыть обернуть компонент в observer и он не будет обновляться. Если у вас довольно большое приложение - есть шансы это не заметить совсем
+3. Всё надо оборачивать в observer
+-->
 
 ---
 
-# Learn More
+# Толстые клиенты
 
-[Documentations](https://sli.dev) · [GitHub](https://github.com/slidevjs/slidev) · [Showcases](https://sli.dev/showcases.html)
+- фото и видео редакторы
+- карты
+- соц сети
+- бэкофисы со сложной функциональностью
+- крупные PWA
+- web3 приложухи
+
+<!-- 
+Если в рамках приложения есть сложный процесс - то вероятно вам понадобиться какой-то инструмент для его описания
+Тут выбор будет зависеть от ваших вкусов
+Если мы делаем сайт, то нам желательно, чтобы набор таких характеристик соотношения веса библиотеки и её возможностей был достаточен. 
+Дополнительно мы должны минимизировать сложность
+
+Порой оптимальным в проект затянуть пару дешёвых стейтменеджеров которые хорошо решают конкретную задачу
+-->
+
+---
+
+## Кому брать effector
+
+```ts
+const birthdayHappend = createEvent()
+const $age = createStore(0).on(birthdayHappend, (curAge) => curAge + 1)
+const hp = createStore(100)
+	.on(birthdayHappend, (curHp) => curHp - 1)
+
+birthdayHappend.watch(() => {
+  console.log('new birthday')
+})
+$age.watch(newAge => {
+  console.log('age changed', newAge)
+})
+```
+
+<!-- 
+Начнём с Effector
+
+Сжатый effector весит 20 кбайт
+Концептуально - это rxjs для стейтменеджмента. Все же помнят как просто работать с rxjs - давайте писать логику в похожем стиле
+[смотрим слайд]
+На меленьких примерах выглядит симпатично, как и что угодно. Других примеров никто не предоставляет
+
+Хороший выбор для команды сеньёров которым скучно на проекте
+https://bundlejs.com/?q=effector-react@23.2.1,effector@23.2.2
+-->
+
+---
+
+## Кому брать Zustand
+
+```ts
+import { create } from 'zustand'
+
+const useBearStore = create((set) => ({
+  bears: 0,
+  increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
+  removeAllBears: () => set({ bears: 0 }),
+}))
+```
+
+<!-- 
+Zustand - это антипод Effector. Effector сложный - Zustand максимально простой, Effector большой - zustand весит 1.2 кБайта. 
+
+Если вам нравится FLUX, то вам придётся по вкусу и минималистичный Zustand. Получаем get и set методы в конструкторе стора и работаем. 
+
+Секрет простоты: Store представляет pub sub, который биндится в react при помощи use-sync-external-store/with-selector
+
+Почему во многих кейсах это лучше чем редакс?
+
+- Маленький - 1.2 кБ. В 11 раз меньше редакс тулкит https://bundlephobia.com/package/zustand@4.5.2
+- более производительный. За счёт того, что мы может создавать маленькие сторы - когда обновился один стор пересчитаются только его селекторы, а не селекторы всех сторов
+- Нужен редьюсер - получите редьюсер
+- хотите асcихронные действия - делайте асинхронные действия
+- можно использовать с redux dev tools
+- Дополнительные фичи вынесены в отдельные импорты поэтому вы за них не платите
+  - Нужен иммер - получите immer
+-->
+---
+
+## Кому брать Valtio
+
+```tsx{*|3|5-7|11|10-18|*}
+import { proxy, useSnapshot } from 'valtio'
+
+const state = proxy({ count: 0, text: 'hello' })
+
+setInterval(() => {
+  ++state.count
+}, 1000)
+
+// This will re-render on `state.count` change but not on `state.text` change
+function Counter() {
+  const snap = useSnapshot(state)
+  return (
+    <div>
+      {snap.count}
+      <button onClick={() => ++state.count}>+1</button>
+    </div>
+  )
+}
+```
+
+<!-- Valtio - простая система реактивности на прокси объектах. Довольно маленькая библиотека с tree shaking-ом
+
+Стоит отметить, что мутабельный стейт не лучшим образом подходит для глобального стейта. Если вынести его во вне компонента, то по ходу роста проекта будет сложно найти все места где кто-то как-то его меняет
+Мутабельный стейт классно подходит для локального состояния так как оно будет просто меньше
+
+Limitations: 
+по дефолту set и map не проксируются для этого надо создать при помощи специального конструктора
+система реактивности довольно урезанная, можно работать только с объектами, нету effect-ов
+если использовать большую часть функциональности - то затянем js-а вплодь до 10 кБ
+ -->
+ 
+---
+
+## Кому брать jotai (recoil, reatom)
+
+````md magic-move
+```tsx{*|3|6|7-13|*}
+import { atom, useAtom } from 'jotai'
+
+const countAtom = atom(0)
+
+function Counter() {
+  const [count, setCount] = useAtom(countAtom)
+  return (
+    <div>
+      {count}
+      <button onClick={() => setCount((c) => c + 1)}>one up</button>
+      {/* ... */}
+    </div>
+  )
+}
+```
+```tsx
+import { atom, useAtom } from 'jotai'
+
+const countAtom = atom(0)
+const doubledCountAtom = atom((get) => get(countAtom) * 2)
+
+function Counter() {
+  const [count, setCount] = useAtom(countAtom)
+  const [doubledCount] = useAtom(doubledCountAtom)
+  return (
+    <div>
+      {count}
+      <br />
+      {doubledCount}
+      <button onClick={() => setCount((c) => c + 1)}>one up</button>
+      {/* ... */}
+    </div>
+  )
+}
+```
+````
+
+<!-- 
+Постоенные на концепции атомов стейтменеджеры. 
+Синтаксис очень похож на сигналы, но для того, чтобы подписаться на атом нужно его прочитать при помощи специальной функции. Довольно честный подход, но вербозный
+
+Jotai и recoil похожи друг на друга. Reatom же от них довольно сильно отличается. Забавная зверюшка, 
+если посмотреть, то у них есть примерно всё свое, даже собственный фреймворк, есть роутинг, формы, свои jsx шаблоны. Меня пугает такой scope проекта
+
+Поговорим про что-то более мейнстримное: Jotai и Recoil
+[[смотрим слайд]]
+стейт менеджмеры со спрятанным стором
+Выглядит довольно симпатично - похоже на сигналы. Но есть ньюанс - atom - ы контекстно зависимые. Можно использовать передавать стор через контекст. Но тогда в разных react render-ах значения countAtom-а будет разным. Atom - это вообще не состояние, а его конструктор
+Ищем стор для изменения значения атома
+Зачем так было делать? Я не знаю. Не понимаю кому нужна такая фича. С учатом того, что рядом существуют ещё и конструкторы атомов
+Но у jotai есть несколько преимуществ - он довольно популярный и для него есть много тулинга
+ -->
+
+---
+
+## Закат Recoil
+
+![alt text](image-3.png)
+![alt text](image-4.png)
+
+```tsx{v-click}
+function currentRendererSupportsUseSyncExternalStore(): boolean {
+  // $FlowFixMe[incompatible-use]
+  const {ReactCurrentDispatcher, ReactCurrentOwner} =
+    /* $FlowFixMe[prop-missing] This workaround was approved as a safer mechanism
+     * to detect if the current renderer supports useSyncExternalStore()
+     * https://fb.workplace.com/groups/reactjs/posts/9558682330846963/ */
+    React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+```
+
+![alt text](image-5.png){v-click}
+
+
+
+
+<!-- Recoil - это Jotai написанный инженерами Facebook, соотвественно jotai почти в 10 раз меньше 
+
+API менее удобен. А ещё ребята использовали SECRET_INTERNALS реакта. Написали комментарий-извинение, но похоже не помогло - последний коммит в репозиторий был 8 месяцев назад -->
+
+
+---
+
+# Архитертура это стейтменеджмент а не стейтменеджер
+
+<!-- 
+Если наши задачи стейтменеджмента обязательно требуют стейтменеджер - давайте его заиспользуем
+
+Но если стейта у нас немного, то задачи можно решать более просто
+ -->
+
+---
+
+# Хендлы
