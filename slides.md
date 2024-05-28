@@ -94,227 +94,8 @@ View Transitions
 В данном случае вопрос стейтменеджмента у нас не стоит
 
 React появляется с тонкими клиентами
--->
-
----
-
-# Берем то что есть в браузере
-- searchParams 
-- localStorage 
-- sessionStorage
-
----
-
-# Search params
-
-- next
-- react-router-dom
-- @tanstack/react-router
-
-<!-- 
-searchParams, localStorage и sessionStorage
-
-Механизм searchParams неоправданно редко используется фронтенд разработчиками, хотя
-
-- полезно на сервер сайде - там как у нас нет доступа к бразузерным api
-- пользователь сможет расшарить урл
-- Когда нам репортят баг - вы сможете открыть ссылку и увидеть страницу в том же состоянии
-- пользователь сможет продублировать вкладку - он получит вкладку в том же состоянии (скорее всего этого он и хочет)
-- пользователь сможет получить то же состояние при обновлении страницы, либо навигации назад
-- пользователь сможет сохранить закладку на страницу в удобном для него состоянии
-
-
-Нельзя поговорить про searchParams без того, чтобы обсудить router-ы. 
-Скорее всего у вас на проекте уже есть какой роутер и вам придётся с ним жить(
-То насколько приятно с ними будет работать будет зависеть непосредственно от них
-
-Пойдём в порядке уменьшения дерьмовости. 
- -->
-
----
-
-## Next.js - сериализуй меня полностью
-
-```tsx{|4|6-13|17-19|20-22}
-export default function ExampleClientComponent() {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString())
-      params.set(name, value)
-      return params.toString()
-    },
-    [searchParams]
-  )
-  return (
-    <>
-      <p>Sort By</p>
-      <button onClick={() => router.push(pathname + '?' + createQueryString('sort', 'asc'))}>
-        ASC
-      </button>
-      <Link href={pathname + '?' + createQueryString('sort', 'desc')}>
-        DESC
-      </Link>
-    </>
-  )
-}
-```
-
-<!-- 
-В next js можно получить searchParams при помощи хука, но для того, чтобы обновить их - надо сделать переход по ссылке и сериализовать параметры
-Удобной работы с вложенными объектами из коробки нету
-Разработчики next-а вероятно не считают searchParams важными
-
-Это можно накостылить, если wrap-нуть некстовые апишки. Можно получить апи, как в react-router-dom 
--->
-
----
-
-## React-router-dom - ну хоть что-то
-
-```tsx{*|5|16-21|7-11} twoslash
-import * as React from "react";
-import { useSearchParams } from "react-router-dom";
-
-function App() {
-  let [searchParams, setSearchParams] = useSearchParams();
-
-  const changeSort = (newSort: 'desc' | 'asc') => {
-    const clonedSearchParams = new URLSearchParams(searchParams);
-    clonedSearchParams.set('sort', newSort);
-    setSearchParams(clonedSearchParams);
-  }
-
-  return (
-    <>
-      <p>Sort By</p>
-      <button onClick={() => changeSort('asc')}>
-        ASC
-      </button>
-      <button onClick={() => changeSort('desc')}>
-        DESC
-      </button>
-    </>
-  );
-}
-```
-
-<!-- Уже менее больно, но с учётом ограничения client side routing-а можно сильно лучше
-
-В данном случае мы можем оперировать с searchParams = useState, но у нас всё ещё нету типобезопасности и возможности использовать вложенные объекты
-
-Часть этих проблем можно решать при помощи useUrlState из ahooks: https://ahooks.js.org/hooks/use-url-state
-Мы сможем использовать свой собственный сериализатор и хранить сложные объекты в урле -->
-
----
-
-# @tanstack/react-router - наконец-то
-
-<!-- - typesafety
-- первоклассная поддержка search params 
-- можно хранить сложные объекты
-- можно использовать селекторы для параметров -->
-
-
-<<< @/snippets/router.tsx#snippet 
-
-<!-- 
-tanstack react router является router-ом нового поколения и заслуживает отдельного доклада
-По сути это стейтменеджер для searchParams
-
-typesafety:
-теперь мы не можем ошибиться и перевести пользователя на несуществующую страницу
-а самое главное - наши searchParams теперь строго типизированы
-Нам достаточно написать валидацию searchParams и в любом месте в котором мы их захотим использовать - они будут гарантированно корректными
-
-можно класть в seachParams сложные структуры данных, они будут превращены в json
-можно использовать селекторы для парамсов - всё по взрослому
--->
-
----
-
-# Ограничения searchParams
-
-- длина url
-- нельзя хранить приватные данные
-
-<!-- 
-У searchParams есть ряд ограничений
-
-есть ограничение на длину адреса сайта. однозначеного мнения нет (60к, 100к). 
-В реальности всё сложно и зависит от браузера. 
-2000 символов - безопасно
-Это немного. но данное ограничение можно побороть - для этого у нас есть lz-string в зависимости от данных - можно сжать некоторые параметры в несколько раз
-
-также нельзя хранить приватные данные, но в традиционных веб приложениях их нельзя хранить примерно нигде, кроме javascript так, что в целом не big deal
 
 -->
----
-
-# localStorage и sessionStorage
-
-````md magic-move
-```tsx{*|5|6-10}
-import React from 'react';
-import { useLocalStorage } from '@rehooks/local-storage';
-
-function MyComponent() {
-  const [user] = useLocalStorage('user', { name: 'Anakin Skywalker' });
-  return (
-    <div>
-      <h1>{user.name}</h1>
-    </div>
-  );
-}
-```
-```tsx
-import React from 'react';
-import { useLocalStorage } from '@rehooks/local-storage';
-
-function MyComponent() {
-  const [user, setUser] = useLocalStorage('user', { name: 'Anakin Skywalker' });
-  return (
-    <div>
-      <input value={user.name} onChange={e => setUser({ ...user, name: e.target.value })} />
-    </div>
-  );
-}
-```
-```tsx
-import React from 'react';
-import { useLocalStorage, writeStorage } from '@rehooks/local-storage';
-
-function MyComponent() {
-  const [user] = useLocalStorage('user', { name: 'Anakin Skywalker' });
-  return (
-    <div>
-      <input value={user.name} onChange={e => writeStorage('user', { ...user, name: e.target.value })} />
-    </div>
-  );
-}
-```
-````
-
-
-
-<!-- 
-Шерим стейт между компонентами и вкладками
-
-@rehooks/local-storage 
-маленький вес, хороший api
-
-если будет нужно - можно скопировать весь код библиотеки и заточить под свои нужды
-
-Также можно использовать `useLocalStorageState` из библиотеки ahooks (10 kb после treeshaking). 
-
-
-Стоит обращаться внимание на реализацию, многие реализации хука не синхронизируют стейт между компонентами и вкладками. Например в uidotdev/hooks (парсим json каждый рендер)
-Будет работать максимально хорошо для примитивных типов javascript. Но вообще можно зафайнтюнить и добавить селекторы
- -->
-
 ---
 layout: two-cols
 layoutClass: 'gap-16'
@@ -417,24 +198,254 @@ export const App = () => {
 -->
 ---
 
+# Чем нам может помочь браузер
+- searchParams 
+- localStorage 
+- sessionStorage
+
+<!--
+Как убрать данные из жизненного цикла компонента?
+
+Используем браузерные api
+-->
+
+---
+
+# Search params
+
+- next
+- react-router-dom
+- @tanstack/react-router
+
+<!-- 
+searchParams, localStorage и sessionStorage
+
+Механизм searchParams неоправданно редко используется фронтенд разработчиками, хотя
+
+- полезно на сервер сайде - там как у нас нет доступа к бразузерным api
+- пользователь сможет расшарить урл
+- Когда нам репортят баг - вы сможете открыть ссылку и увидеть страницу в том же состоянии
+- пользователь сможет продублировать вкладку - он получит вкладку в том же состоянии (скорее всего этого он и хочет)
+- пользователь сможет получить то же состояние при обновлении страницы, либо навигации назад
+- пользователь сможет сохранить закладку на страницу в удобном для него состоянии
+
+
+Нельзя поговорить про searchParams без того, чтобы обсудить router-ы. 
+Скорее всего у вас на проекте уже есть какой роутер и вам придётся с ним жить(
+То насколько приятно с ними будет работать будет зависеть непосредственно от него
+
+От худшего к лучшему
+ -->
+
+---
+
+## Next.js - сериализуй меня полностью
+
+```tsx{|4|6-13|17-19|20-22}
+export default function ExampleClientComponent() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set(name, value)
+      return params.toString()
+    },
+    [searchParams]
+  )
+  return (
+    <>
+      <p>Sort By</p>
+      <button onClick={() => router.push(pathname + '?' + createQueryString('sort', 'asc'))}>
+        ASC
+      </button>
+      <Link href={pathname + '?' + createQueryString('sort', 'desc')}>
+        DESC
+      </Link>
+    </>
+  )
+}
+```
+
+<!-- 
+В next js можно получить searchParams при помощи хука, но для того, чтобы обновить их - надо сделать переход по ссылке и сериализовать параметры
+Удобной работы с вложенными объектами из коробки нету
+Разработчики next-а вероятно не считают searchParams важными
+
+Это можно накостылить, если wrap-нуть некстовые апишки. Можно получить апи, как в react-router-dom 
+-->
+
+---
+
+## React-router-dom - ну хоть что-то
+
+```tsx{*|5|16-21|7-11} twoslash
+import * as React from "react";
+import { useSearchParams } from "react-router-dom";
+
+function App() {
+  let [searchParams, setSearchParams] = useSearchParams();
+
+  const changeSort = (newSort: 'desc' | 'asc') => {
+    const clonedSearchParams = new URLSearchParams(searchParams);
+    clonedSearchParams.set('sort', newSort);
+    setSearchParams(clonedSearchParams);
+  }
+
+  return (
+    <>
+      <p>Sort By</p>
+      <button onClick={() => changeSort('asc')}>
+        ASC
+      </button>
+      <button onClick={() => changeSort('desc')}>
+        DESC
+      </button>
+    </>
+  );
+}
+```
+
+<!--
+Уже менее больно, но с учётом ограничения client side routing-а можно сильно лучше
+
+В данном случае мы можем оперировать с searchParams = useState,
+Тыкаем слайды
+
+Удобно ли это?
+Нету типобезопасности. Сериализацию вложенные объектов пишем сами
+
+Работать с объектами можно при помощи useUrlState из ahooks: https://ahooks.js.org/hooks/use-url-state
+-->
+
+---
+
+# @tanstack/react-router - наконец-то
+
+<!-- - typesafety
+- первоклассная поддержка search params 
+- можно хранить сложные объекты
+- можно использовать селекторы для параметров -->
+
+
+<<< @/snippets/router.tsx#snippet
+
+<!--
+tanstack react router является router-ом нового поколения и заслуживает отдельного доклада
+
+По сути это стейтменеджер для searchParams
+
+typesafety:
+
+- корректная навигация
+- searchParams теперь строго типизированы через валидацию 
+- json сериализация из коробки (сложные структуры)
+- можно использовать селекторы для парамсов
+-->
+
+---
+
+# Ограничения searchParams
+
+- длина url
+- нельзя хранить приватные данные
+
+<!--
+У searchParams есть ряд ограничений
+
+- есть ограничение на длину адреса сайта. 60к, 100к. 
+- пессимистично 2000
+-  lz-string 
+- приватные данные нельзя хранить (как и нигде)
+-->
+
+---
+
+# localStorage и sessionStorage
+
+````md magic-move
+```tsx{*|5|6-10}
+import React from 'react';
+import { useLocalStorage } from '@rehooks/local-storage';
+
+function MyComponent() {
+  const [user] = useLocalStorage('user', { name: 'Anakin Skywalker' });
+  return (
+    <div>
+      <h1>{user.name}</h1>
+    </div>
+  );
+}
+```
+```tsx
+import React from 'react';
+import { useLocalStorage } from '@rehooks/local-storage';
+
+function MyComponent() {
+  const [user, setUser] = useLocalStorage('user', { name: 'Anakin Skywalker' });
+  return (
+    <div>
+      <input value={user.name} onChange={e => setUser({ ...user, name: e.target.value })} />
+    </div>
+  );
+}
+```
+```tsx
+import React from 'react';
+import { useLocalStorage, writeStorage } from '@rehooks/local-storage';
+
+function MyComponent() {
+  const [user] = useLocalStorage('user', { name: 'Anakin Skywalker' });
+  return (
+    <div>
+      <input value={user.name} onChange={e => writeStorage('user', { ...user, name: e.target.value })} />
+    </div>
+  );
+}
+```
+````
+
+<!--
+Шерим стейт между компонентами и вкладками
+
+@rehooks/local-storage 
+маленький вес, хороший api
+
+[Смотрим слайды]
+
+если будет нужно - можно скопировать весь код библиотеки и заточить под свои нужды
+
+Аналоги в других либах
+
+Стоит обращаться внимание на реализацию
+ньансы (вкладки и компоненты)
+Например в uidotdev/hooks (парсим json каждый рендер)
+
+Будет работать максимально хорошо плоских данных. 
+Но вообще можно зафайнтюнить и добавить селекторы
+-->
+
+---
+
 # Task oriented стейтменеджеры
 
 Решения шалонных задач:
 - кэши для запросов ([`@tanstack/react-query`](https://tanstack.com/query/v5), [`swr`](https://swr.vercel.app/))
 - стейтменеджеры для форм ([`react-hook-form`](https://react-hook-form.com/))
 - универсальный стейтменеджер ([`nanostores`](https://github.com/nanostores/nanostores))
-- performance first стейтменеджеры (preact-signals, legend-state)
 - стейтменеджеры для анимаций (framer-motion, react-spring)
+- performance first стейтменеджеры (preact-signals, legend-state)
 
 <!--
 Если мы делаем client side приложение, то скорее всего у нас есть более сложные задачи, чем забиндить поля в инпуты
 
-как правило у нас есть работа с асинхронщиной 
-порой у нас есть сложные формы
-иногда нам нужно писать логику так, чтобы она работала с любым фреймворком
-порой нам хочется чтобы React не делал лишней работы
-иногда нам надо реализовать анимации
-
+- работа с асинхронщиной 
+- сложные формы и валидация
+- шеринг логики с другими фреймворками (микрофронты)
+- иногда нам надо реализовать анимации
+- оптимизация рендеров React -а
 -->
 
 ---
@@ -490,20 +501,29 @@ const TodosCounter = () => {
 ```
 ````
 
-
 <!--
 В наших приложениях мы часто совершаем асинхронные действия. Хорошие биндинги в реакт - не просто написать
-Если у нас 3 запроса и больше точно не будет, то нам вероятно не нужны кэшмедеджеры. Мы можем их зашарить в контексте по приложению
 
-Если у вас REST - то 3 буква - это State, то мы можем нам достаточно кешировать данные которые нам приходят с бэка. 
-И управлять этими кешами
+Если мы грузим данные 1 раз и они никогда не изменятся - не нужны кэшмедеджеры. 
+
+Мы можем их зашарить в контексте по приложению
+
+Инвалидация, прерывание и повторение запросов - кэшменеджеры
 
 Чем больше приложение, тем больше гибкости в этом вопросе нам необходимо:
 Для маленьких приложений подойдёт swr - он довольно компактный, но не ультра гибкий
 
 Расширяемость = @tanstack/react-query
 
-Не забывайте про мутации, они не менее важны чем query
+[Смотрим слайды]
+
+Внимательно изучите отличия query от mutations => больше пользы
+
+Особенно если у вас REST . 
+3 буква - это State. 
+99.9 - вам хватит кэш менеджера  
+
+Фабрика ключей сделайм вашу жизнь лучше
 -->
 
 ---
@@ -535,17 +555,16 @@ export default function App() {
 }
 ```
 
-<!-- 
-Если мы будем лепить форму при помощи `useState`, с валидацией ошибок и множеством полей, то мы получим медленное спаггети. 
-Резко возрастает желание написать свой собственный formmanager. 
-В этот момент стоит остановиться, отдышаться и подумать о существующих решениях
+<!--
+Формы выросли => сложно читаются и медленно работают
+
+Не надо использовать обычный стейтменеджер
 
 `react-hook-form`
-решает вопросы производительного биндинга инпутов при помощи Controller и register для инпутов
-Решает вопросы валидации. У нас из коробки есть интеграции с библиотеками для валидации. Мне нравится Zod так как он гарантирует type-safety
-Но если у вас на беке валидация инпутов написанна на json schema, то можно взять ajv и использовать как валидатор
- -->
 
+- производительный биндинг инпутов (Controller и register)
+- решает вопросы валидации. (zod и ajv)
+-->
 
 ---
 
@@ -598,22 +617,27 @@ export const Admins = () => {
 ```
 ````
 
+<!--
+Шарим логику между проектами
+Работает везде
 
-<!-- 
-Как и любое детище андерея ситника с приставкой nano: nanostores оптимизирован под размер. Это ведёт к ряду преимуществ и недостатков:
+Обратите внимение на nanostores
 
-- маленький оверхед от [загрузки библиотеки](https://bundlephobia.com/package/nanostores@0.10.3) (2k, tree shakable)
-- API минимален, но несмотря на это его достаточно для реализации логики приложения. С точки зрения выразительности nanostores лучше чем большие библиотеки, чем jotai или recoil
+Андерея Ситник оптимизирован под размер. 
+Это ведёт к ряду преимуществ и недостатков:
 
+- 2k, tree shakable
+- API минимален, но выразителен. 
+- nanostores лучше чем большие библиотеки, чем jotai или recoil
 
+[Смотрим слайды]
 
-Если у нас есть несколько проектов, которые должны шарить какую-то изолированную функциональность - мы реализуем её на уровне nanostores и не паримся о том, как это будет работать с каким либо из нашим фреймворком. 
-Либо можно использовать если мы пишем приложение на island architecture и используем разные фреймворки - мы просто сможем импортировать стор и использовать его в любом из них
+Утилиты:
+- аналог tanstack query, router, i18n 
+- Плюс: работает везде
+- Минус: меньше фич и хуже тулинг
+-->
 
-Уже существует аналог tanstack query, router, i18n реализованный при помощи nanostores
-У всех этих тулзовин есть минус - меньше фич и хуже тулинг
- -->
- 
 ---
 
 # Performance first statemanagement (preact-signals)
@@ -664,15 +688,23 @@ export const ApplesTotal = () => <p>Total: {applesTotal.value}</p>
 ```
 ````
 
+<!--
+Зачем?
+Если хотим иметь гранулярный контроль над ререндерами
 
-<!-- 
-Если хотим иметь гранулярный контроль над ререндерами - мы можем воспользоваться preact signals
+Изячщный стейтменджер => preact-signals
+[смотрим пару слайдов]
+Красивая интеграция в react  => досматриваем слайды
 
-Это система реактивности, которая [весит](https://bundlephobia.com/package/@preact/signals-react@2.0.1) 2.4 kB. Что рекордно низкий размер для системы реактивности с динамическим треккингом зависимостей. Сделано с фокусом на производительность
+Сделано с фокусом на производительность
 
-Ограничение: 
+Маленькая система реактивности, которая [весит]2.4 kB 
+
+Ограничение:
+- по дефолту работаем по ссылкам. если хотите работать с объектами можно воспользовать моей либой 
 - для удобной интеграции с react нужен build step, скорее всего он у вас уже есть
- -->
+-->
+
 ---
 layout: two-cols-header
 layoutClass: 'grid-rows-[auto_1fr]!'
