@@ -1,6 +1,8 @@
 # Ложное утверждение
+
 $UI = f(state)\Rightarrow$ Стейт-менеджер один из столпов архитектуры
-<img src="/ring.jpg" />
+
+<img class="max-h-[calc(100%-100px)] mx-auto" src="/ring.jpg" />
 
 <!-- 
 Все просто:
