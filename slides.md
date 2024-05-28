@@ -1092,8 +1092,8 @@ Jotai и recoil похожи друг на друга. Reatom же от них �
 
 ## Закат Recoil
 
-![alt text](image-3.png)
-![alt text](image-4.png)
+![alt text](/image-3.png)
+![alt text](/image-4.png)
 
 ```tsx{v-click}
 function currentRendererSupportsUseSyncExternalStore(): boolean {
@@ -1105,7 +1105,7 @@ function currentRendererSupportsUseSyncExternalStore(): boolean {
     React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
 ```
 
-![alt text](image-5.png){v-click}
+![alt text](/image-5.png){v-click}
 
 
 
