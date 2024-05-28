@@ -876,8 +876,6 @@ runInAction(() => {
 ```
 ````
 
-
-
 <!-- 
 Не берём старьё
 
@@ -1092,9 +1090,12 @@ Jotai и recoil похожи друг на друга. Reatom же от них �
 
 ## Закат Recoil
 
-![alt text](/image-3.png)
-![alt text](/image-4.png)
+<div class='w-1/2'>
+<img alt="alt text" src="/image-3.png" class="max-w-full object-scale-down" />
+<img alt="alt text" src="/image-4.png" class="max-w-full object-scale-down" />
+</div>
 
+<!-- ```tsx{v-click class="w-1/2 absolute top-0 right-0"} -->
 ```tsx{v-click}
 function currentRendererSupportsUseSyncExternalStore(): boolean {
   // $FlowFixMe[incompatible-use]
