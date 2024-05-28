@@ -37,8 +37,6 @@ src: ./pages/wiki-architecture.md
 src: ./pages/architecture-as-is.md
 ---
 
-
-
 ---
 src: ./pages/inertia.md
 ---
