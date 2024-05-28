@@ -731,7 +731,7 @@ Cложный процесс - может понадобиться какой-т
 
 ---
 layout: two-cols-header
-layoutClass: 'grid-rows-[auto_1fr]!'
+layoutClass: 'grid-rows-[auto_1fr]! gap-4'
 ---
 
 # Избегаем старьё
@@ -803,7 +803,7 @@ runInAction(() => {
 
 ::right::
 
-![alt text](/image-2.png){class="max-h-full mx-auto w-1/2 object-scale-down",v-click}
+![alt text](/image-2.png){class="max-h-full scale-91 mt--14 object-scale-down" v-click}
 
 <!-- 
 Не берём старьё
@@ -988,23 +988,29 @@ Jotai и recoil похожи друг на друга. Reatom же от них �
 
 ## Закат Recoil
 
-<div class='w-1/2'>
-<img alt="alt text" src="/image-3.png" class="max-w-full object-scale-down" />
-<img alt="alt text" src="/image-4.png" class="max-w-full object-scale-down" />
-</div>
+::div{class="grid grid-cols-[1fr_2fr] gap-4"}
+  :::div{class="flex flex-col gap-4"}
+    <img alt="alt text" src="/image-3.png" class="max-w-full object-scale-down" />
+    <img alt="alt text" src="/image-4.png" class="max-w-full object-scale-down" />
+  :::
 
-<!-- ```tsx{v-click class="w-1/2 absolute top-0 right-0"} -->
-```tsx{v-click}
-function currentRendererSupportsUseSyncExternalStore(): boolean {
-  // $FlowFixMe[incompatible-use]
-  const {ReactCurrentDispatcher, ReactCurrentOwner} =
-    /* $FlowFixMe[prop-missing] This workaround was approved as a safer mechanism
-     * to detect if the current renderer supports useSyncExternalStore()
-     * https://fb.workplace.com/groups/reactjs/posts/9558682330846963/ */
-    React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
-```
+  :::div{class="flex flex-col"}
+    ::::div{v-click}
+    ```tsx
+    function currentRendererSupportsUseSyncExternalStore(): boolean {
+      // $FlowFixMe[incompatible-use]
+      const {ReactCurrentDispatcher, ReactCurrentOwner} =
+        /* $FlowFixMe[prop-missing] This workaround was approved as a safer mechanism
+         * to detect if the current renderer supports useSyncExternalStore()
+         * https://fb.workplace.com/groups/reactjs/posts/9558682330846963/ */
+        React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+    ```
+    ::::
+    ![alt text](/image-5.png){v-click}
+  :::
+::
 
-![alt text](/image-5.png){v-click}
+
 
 <!--
 Recoil - это Jotai написанный инженерами Facebook, 
@@ -1019,8 +1025,13 @@ API менее удобен.
 -->
 
 ---
+layout: center
+class: "text-center"
+---
 
+::div{v-click}
 # Архитертура это стейт**менеджмент** а не стейт**менеджер**
+::
 
 <!--
 Подведём итоги
