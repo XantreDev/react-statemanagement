@@ -891,7 +891,8 @@ https://bundlejs.com/?q=effector-react@23.2.1,effector@23.2.2
 
 ## Кому брать Zustand
 
-```ts
+````md magic-move
+```tsx{*|3|5-6|14|*}
 import { create } from 'zustand'
 
 const useBearStore = create((set) => ({
@@ -899,7 +900,57 @@ const useBearStore = create((set) => ({
   increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
   removeAllBears: () => set({ bears: 0 }),
 }))
+
+setInterval(() => {
+  useBearStore.getState().increasePopulation()
+}, 1000)
+
+const BearCounter = () => {
+  const bears = useBearStore((state) => state.bears)
+  return <h1>{bears} around here ...</h1>
+}
 ```
+```tsx
+import { create } from 'zustand'
+import { immer } from 'zustand/middleware/immer'
+
+const useBearStore = create(immer((set) => ({
+  bears: 0,
+  increasePopulation: () => set((state) => { state.bears++ }),
+  removeAllBears: () => set({ bears: 0 }),
+}))
+
+setInterval(() => {
+  useBearStore.getState().increasePopulation()
+}, 1000)
+
+const BearCounter = () => {
+  const bears = useBearStore((state) => state.bears)
+  return <h1>{bears} around here ...</h1>
+}
+```
+```tsx
+import { create } from 'zustand'
+
+const useBearStore = create((set) => ({
+  bears: 0,
+  fetchBears: async () => {
+    const response = await fetch('https://api.com/bears')
+    const bears = await response.json()
+    set({ bears })
+  },
+}))
+
+setInterval(() => {
+  useBearStore.getState().fetchBears()
+}, 10_000)
+
+const BearCounter = () => {
+  const bears = useBearStore((state) => state.bears)
+  return <h1>{bears} around here ...</h1>
+}
+```
+````
 
 <!--
 Zustand - это антипод Effector. 
@@ -908,7 +959,7 @@ Effector большой - zustand 1.2 кБайта.
 
 Если вам нравится FLUX 
 
-[[смотрим слайды]]
+[[смотрим слайд]]
 
 Секрет простоты: Store = pub sub + use-sync-external-store/with-selector
 
@@ -916,10 +967,12 @@ Effector большой - zustand 1.2 кБайта.
 
 - размер. В 11 раз меньше редакс тулкит https://bundlephobia.com/package/zustand@4.5.2
 - более производительный (маленькие сторы)
-- асcихронные действия - из коробки
 - redux dev tools
 - опциональные фичи
 - immer
+[смотрим слайд]
+- асcихронные действия - из коробки
+[смотрим слайд] так делать не нужно, но всё бывает
 -->
 
 ---
@@ -1068,16 +1121,18 @@ Reatom немного другой. Есть примерно всё свое:
   :::
 ::
 
-
-
 <!--
 Recoil - это Jotai написанный инженерами Facebook, 
 
 jotai почти в 10 раз меньше 
 
 API менее удобен. 
+
+[[показать слайд]] Ребята использовали SECRET_INTERNALS реакта. 
+
+[[показать слайд]]
 Последний коммит 8 месяцев назад
-Ребята использовали SECRET_INTERNALS реакта. 
+
 
 Наверное их уволили
 -->
