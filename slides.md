@@ -214,9 +214,12 @@ export const App = () => {
 ---
 
 # Чем нам может помочь браузер
+
 - searchParams 
 - localStorage 
 - sessionStorage
+
+![alt text](/image-7.png){class="max-h-[calc(360px)] object-contain my-4 mx-auto"}
 
 <!--
 Как убрать данные из жизненного цикла компонента?
@@ -238,8 +241,8 @@ export const App = () => {
 - полезно на сервер сайде - там как у нас нет доступа к бразузерным api
 - пользователь сможет расшарить урл
 - Когда нам репортят баг - вы сможете открыть ссылку и увидеть страницу в том же состоянии
-- пользователь сможет продублировать вкладку - он получит вкладку в том же состоянии (скорее всего этого он и хочет)
-- пользователь сможет получить то же состояние при обновлении страницы, либо навигации назад
+- пользователь сможет продублировать 
+- пользователь сможет обновить страницу
 - пользователь сможет сохранить закладку на страницу в удобном для него состоянии
 
 
@@ -254,7 +257,7 @@ export const App = () => {
 
 ## Next.js - сериализуй меня полностью
 
-```tsx{|4|6-13|17-19|20-22}
+```tsx{|4|6-13|17-19|20-22|}
 export default function ExampleClientComponent() {
   const router = useRouter()
   const pathname = usePathname()
@@ -282,19 +285,26 @@ export default function ExampleClientComponent() {
 }
 ```
 
-<!-- 
-В next js можно получить searchParams при помощи хука, но для того, чтобы обновить их - надо сделать переход по ссылке и сериализовать параметры
+<!--
+В next js можно получить searchParams при помощи хука
+
+[[слайд]]
+
+[[слайд]] но для того, чтобы обновить их - надо сделать переход по ссылке и сериализовать параметры
+
+[[слайд]] 
+
 Удобной работы с вложенными объектами из коробки нету
 Разработчики next-а вероятно не считают searchParams важными
 
-Это можно накостылить, если wrap-нуть некстовые апишки. Можно получить апи, как в react-router-dom 
+Это можно накостылить, если wrap-нуть некстовые апишки. Можно получить апи, как в react-router-dom
 -->
 
 ---
 
 ## React-router-dom - ну хоть что-то
 
-```tsx{*|5|16-21|7-11} twoslash
+```tsx{*|5|7-11|16-21|} twoslash
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -321,11 +331,13 @@ function App() {
 }
 ```
 
+<!-- [useUrlState](https://ahooks.js.org/hooks/use-url-state){v-click class="block mt-4"} -->
+
 <!--
-Уже менее больно, но с учётом ограничения client side routing-а можно сильно лучше
+Уже менее больно, но можно сильно лучше
 
 В данном случае мы можем оперировать с searchParams = useState,
-Тыкаем слайды
+[слайд]
 
 Удобно ли это?
 Нету типобезопасности. Сериализацию вложенные объектов пишем сами
@@ -478,7 +490,7 @@ const Todos = () => {
 }
 ```
 ```ts
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, queryOptions } from '@tanstack/react-query'
 
 const todosOptions = queryOptions({
 	queryFn: () => fetchTodos(),
@@ -490,8 +502,8 @@ const Todos = () => {
 	// ...
 }
 ```
-```ts{*|17}
-import { useQuery } from '@tanstack/react-query'
+```ts{*|17|*}
+import { useQuery, queryOptions } from '@tanstack/react-query'
 
 const todosOptions = queryOptions({
 	queryFn: () => fetchTodos(),
@@ -658,13 +670,13 @@ export const Admins = () => {
 
 ````md magic-move
 ```tsx
-import { signal } from '@preact/signals'
+import { signal } from '@preact/signals-react'
 
 const applesPrice = signal(0.69)
 const applesQuantity = signal(4)
 ```
 ```tsx
-import { signal, computed } from '@preact/signals'
+import { signal, computed } from '@preact/signals-react'
 
 const applesPrice = signal(0.69)
 const applesQuantity = signal(4)
@@ -672,7 +684,7 @@ const applesQuantity = signal(4)
 const applesTotal = computed(() => applesPrice.value * applesQuantity.value)
 ```
 ```tsx
-import { signal, computed } from '@preact/signals'
+import { signal, computed } from '@preact/signals-react'
 
 const applesPrice = signal(0.69)
 const applesQuantity = signal(4)
@@ -685,7 +697,7 @@ setInterval(() => {
 }, 2_000)
 ```
 ```tsx
-import { signal, computed } from '@preact/signals'
+import { signal, computed } from '@preact/signals-react'
 
 const applesPrice = signal(0.69)
 const applesQuantity = signal(4)
@@ -698,6 +710,21 @@ setInterval(() => {
 }, 2_000)
 
 export const ApplesTotal = () => <p>Total: {applesTotal.value}</p>
+```
+```tsx
+import { signal, computed } from '@preact/signals-react'
+
+const applesPrice = signal(0.69)
+const applesQuantity = signal(4)
+
+const applesTotal = computed(() => applesPrice.value * applesQuantity.value)
+
+// inflation
+setInterval(() => {
+  applesPrice.value = applesPrice.value * 1.01
+}, 2_000)
+
+export const ApplesTotal = () => <p>Total: {applesTotal}</p>
 ```
 ````
 
@@ -716,8 +743,8 @@ export const ApplesTotal = () => <p>Total: {applesTotal.value}</p>
 Маленькая система реактивности - 2.4 kB 
 
 Ограничение:
-- по дефолту работаем по ссылкам. если хотите работать с объектами можно воспользовать моей либой 
-[смотреть слайд]
+- [смотреть слайд] по дефолту работаем по ссылкам. если хотите работать с объектами можно воспользовать моей либой 
+
 - для удобной интеграции с react нужен build step, скорее всего он у вас уже есть
 -->
 
@@ -815,6 +842,18 @@ runInAction(() => {
 ```
 ````
 
+::div{v-click="5"}
+  ```tsx
+  import { observer } from "mobx-react-lite"
+
+  const DoublerView = observer(() => (
+    <span>
+      Seconds passed: {state.value}
+    </span>
+  ))
+  ```
+::
+
 ::right::
 
 ![alt text](/image-2.png){class="max-h-full scale-91 mt--14 object-scale-down" v-click}
@@ -895,6 +934,10 @@ Rxjs для стейтменеджмента
 
 В чем преимущество данного решения - не понятно
 
+Каскады event-ов
+
+Очереди
+
 Хороший выбор для команды сеньёров которым скучно на проекте
 
 https://bundlejs.com/?q=effector-react@23.2.1,effector@23.2.2
@@ -905,7 +948,7 @@ https://bundlejs.com/?q=effector-react@23.2.1,effector@23.2.2
 ## Кому брать Zustand
 
 ````md magic-move
-```tsx{*|3|5-6|14|*}
+```tsx{*|3|5-6|9-11|14|*}
 import { create } from 'zustand'
 
 const useBearStore = create((set) => ({
@@ -1083,14 +1126,17 @@ function Counter() {
 
 <!--
 Постоенные на концепции атомов стейтменеджеры
+Jotai и recoil, reactom, nanostores
 
-Jotai и recoil похожи друг на друга
+Jotai и recoil похожи друг на друга (контекст)
 
-Reatom немного другой. Там примерно всё свое: 
+Reatom, nanostores немного другой. 
+
+Reatom. примерно всё свое: 
 - фреймворк
 - роутинг
 - формы
-- свои jsx шаблоны. 
+- свои jsx шаблоны
 
 Меня пугает такой scope
 
@@ -1112,6 +1158,8 @@ Reatom немного другой. Там примерно всё свое:
 Довольно популярный + много тулинга
 
 Сигналы предпочтительней
+
+Консервативные сигналы
 -->
 
 ---
@@ -1162,7 +1210,7 @@ class: "text-center"
 ---
 
 ::div{v-click}
-# Архитертура это стейт**менеджмент** а не стейт**менеджер**
+# Архитертура это стейт**менеджмент**, <br /> а не стейт**менеджер**
 ::
 
 <!--
