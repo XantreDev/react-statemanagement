@@ -1255,17 +1255,18 @@ class: "text-center"
 # Спасибо за внимание
 
 ::div{class="grid grid-cols-[1fr_1fr_1fr] gap-4"}
-  :::div{v-click class="flex flex-col items-start gap-2"}
-    [Telegram](https://t.me/javastrippt)
+  :::div{class="flex flex-col items-start gap-2"}
+    [Telegram (javastrippt)](https://t.me/javastrippt)
     ![alt text](/tg-qr-code.svg)
   :::
-  :::div{v-click class="flex flex-col items-start gap-2"}
-    [Twitter/X](https://x.com/Xantre_)
+  :::div{class="flex flex-col items-start gap-2"}
+    [GitHub (XantreDev)](https://github.com/XantreDev)
+    ![alt text](/github-qr-code.svg)
+  :::
+  :::div{class="flex flex-col items-start gap-2"}
+    [Twitter/X (Xantre)](https://x.com/Xantre_)
     ![alt text](/twitter-qr-code.svg)
   :::
-  :::div{v-click class="flex flex-col items-start gap-2"}
-    [GitHub](https://github.com/XantreDev)
-    ![alt text](/github-qr-code.svg)
 ::
 
 <!--
@@ -1273,9 +1274,9 @@ class: "text-center"
 
 Канал
 
-Twitter
-
 Github
+
+Twitter
 
 Презентация - в open source
 
