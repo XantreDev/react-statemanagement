@@ -1166,7 +1166,7 @@ Reatom. примерно всё свое:
 
 ## Закат Recoil
 
-::div{class="grid grid-cols-[1fr_2fr] gap-4"}
+::div{class="grid grid-cols-[2fr_3fr] gap-4"}
   :::div{class="flex flex-col gap-4"}
     <img alt="alt text" src="/image-3.png" class="max-w-full object-scale-down" />
     <img alt="alt text" src="/image-4.png" class="max-w-full object-scale-down" />
@@ -1178,8 +1178,9 @@ Reatom. примерно всё свое:
     function currentRendererSupportsUseSyncExternalStore(): boolean {
       // $FlowFixMe[incompatible-use]
       const {ReactCurrentDispatcher, ReactCurrentOwner} =
-        /* $FlowFixMe[prop-missing] This workaround was approved as a safer mechanism
-         * to detect if the current renderer supports useSyncExternalStore()
+        /* $FlowFixMe[prop-missing] This workaround was approved 
+         * as a safer mechanism to detect if the current 
+         * renderer supports useSyncExternalStore()
          * https://fb.workplace.com/groups/reactjs/posts/9558682330846963/ */
         React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
     ```
@@ -1227,3 +1228,31 @@ class: "text-center"
 ---
 
 # Спасибо за внимание
+
+::div{class="grid grid-cols-[1fr_1fr_1fr] gap-4"}
+  :::div{v-click class="flex flex-col items-start gap-2"}
+    [Telegram](https://t.me/javastrippt)
+    ![alt text](/tg-qr-code.svg)
+  :::
+  :::div{v-click class="flex flex-col items-start gap-2"}
+    [Twitter/X](https://x.com/Xantre_)
+    ![alt text](/twitter-qr-code.svg)
+  :::
+  :::div{v-click class="flex flex-col items-start gap-2"}
+    [GitHub](https://github.com/XantreDev)
+    ![alt text](/github-qr-code.svg)
+::
+
+<!--
+Спасибо
+
+Канал
+
+Twitter
+
+Github
+
+Презентация - в open source
+
+Отвечаем на вопросы
+-->
