@@ -20,9 +20,7 @@ mdc: true
 <img src="/YAGNI,_или_Как_не_выбирать_стейт_менеджер_10+_часов.jpg" class="absolute inset-0 object-cover"  />
 
 <!--
-Меня зовут
-
-Поговорим про YAGNI в мире стейтменеджмента
+Всем привет я Валера
 -->
 
 ---
@@ -67,6 +65,10 @@ class: "text-center"
 [[click]]
 
 ## читаем
+
+на сложность можно повлять через разговор с бизнесом (1 из 100)
+
+на сложность способа решения - на наших плечах
 -->
 
 ---
@@ -83,6 +85,11 @@ class: "text-center"
 <!--
 Странно решать простые задачи большими инструментами, как простыми сложные
 
+Мы можем разбить наши приложения на:
+
+- static generated
+- тонкие клиенты (мин логика)
+- толстые клиенты (много логики: редакторы, банковские приложения, web3)
 
 
 когда статический контент (лендинги, документации, бложики) = не React
@@ -99,7 +106,9 @@ View Transitions
 
 стейтменеджмер не актуален
 
-React появляется с тонкими клиентами
+Сегодня будем говорить про приложения над линией реакта
+
+- начнём с управления состоянием в тонких клиента
 -->
 
 ---
@@ -198,7 +207,7 @@ export const App = () => {
 ```
 
 <!--
-Контекст - плохой стейт менеджмер
+Ещё у нас есть контекст, но не попадитесь в ловушку - эта штука не для стейтменеджмента
 
 Почему?
 Работа контекста:
@@ -243,9 +252,11 @@ delay add statemanager
 ![alt text](/image-7.png){class="max-h-[calc(360px)] object-contain my-4 mx-auto"}
 
 <!--
-Как убрать данные из жизненного цикла компонента?
+Как вынести данные за пределы жизненного цикла компонента?
 
 Используем браузерные api
+
+searchParams ...
 -->
 
 ---
@@ -270,6 +281,7 @@ searchParams => router-ы.
 
 роутер дома
 вам придётся с ним жить(
+
 То насколько приятно с ними будет работать будет зависеть непосредственно от него
 
 От худшего к лучшему
@@ -667,102 +679,6 @@ export default function App() {
 
 ---
 
-## Универстальный стейтменеджер (nanostores)
-
-- маленький размер
-- простой API
-
-````md magic-move
-```tsx
-import { atom } from 'nanostores'
-
-export const $users = atom<User[]>([])
-
-export function addUser(user: User) {
-  $users.set([...$users.get(), user]);
-}
-```
-```tsx
-import { atom, computed } from 'nanostores'
-
-export const $users = atom<User[]>([])
-
-export function addUser(user: User) {
-  $users.set([...$users.get(), user]);
-}
-
-const admins = computed($users, users => users.filter(user => user.role === 'admin'))
-```
-```tsx
-import { atom, computed } from 'nanostores'
-import { useStore } from '@nanostores/react'
-
-export const $users = atom<User[]>([])
-
-export function addUser(user: User) {
-  $users.set([...$users.get(), user]);
-}
-
-const admins = computed($users, users => users.filter(user => user.role === 'admin'))
-
-export const Admins = () => {
-  const admins = useStore($admins)
-  return (
-    <ul>
-      {admins.map(user => <UserItem user={user} />)}
-    </ul>
-  )
-}
-```
-````
-
-<!--
-Иногда нам нужно пошарить логику между проектами, и фреймворками
-
-Обратите внимение на nanostores
-
-Андерея Ситник оптимизирован под размер. 
-Это ведёт к ряду преимуществ и недостатков:
-
-- 2k, tree shakable
-- API минимален, но выразителен. 
-- nanostores лучше чем большие библиотеки, чем jotai или recoil
-
-[Смотрим слайды]
-
-Утилиты:
-- аналог tanstack query, router, i18n 
-- Плюс: работает везде
-- Минус: меньше фич и хуже тулинг
--->
-
----
-
-# Толстые клиенты
-
-- фото и видео редакторы
-- карты
-- соц сети
-- бэкофисы со сложной функциональностью
-- крупные PWA
-- web3 приложухи
-
-<!--
-Если в нашем приложении есть какой-то сложный процесс, то может понадобиться какой-то инструмент для его описания
-
-Тут выбор будет зависеть от ваших вкусов
-
-Секты
-
-я в секте реактивщины
-
-Важен размер, выразительность, сложность инструмента, тулинг
-
-если хотим мы можем использовать и пару дешёвых стейтменеджеров
--->
-
----
-
 # Performance first statemanagement (preact-signals)
 
 
@@ -845,7 +761,102 @@ export const ApplesTotal = () => <p>Total: {applesTotal}</p>
 - для удобной интеграции с react нужен build step, скорее всего он у вас уже есть
 -->
 
+---
 
+## Универстальный стейтменеджер (nanostores)
+
+- маленький размер
+- простой API
+
+````md magic-move
+```tsx
+import { atom } from 'nanostores'
+
+export const $users = atom<User[]>([])
+
+export function addUser(user: User) {
+  $users.set([...$users.get(), user]);
+}
+```
+```tsx
+import { atom, computed } from 'nanostores'
+
+export const $users = atom<User[]>([])
+
+export function addUser(user: User) {
+  $users.set([...$users.get(), user]);
+}
+
+const admins = computed($users, users => users.filter(user => user.role === 'admin'))
+```
+```tsx
+import { atom, computed } from 'nanostores'
+import { useStore } from '@nanostores/react'
+
+export const $users = atom<User[]>([])
+
+export function addUser(user: User) {
+  $users.set([...$users.get(), user]);
+}
+
+const admins = computed($users, users => users.filter(user => user.role === 'admin'))
+
+export const Admins = () => {
+  const admins = useStore($admins)
+  return (
+    <ul>
+      {admins.map(user => <UserItem user={user} />)}
+    </ul>
+  )
+}
+```
+````
+
+<!--
+Иногда нам нужно пошарить логику между проектами, и фреймворками
+
+Обратите внимение на nanostores
+
+Андерея Ситник оптимизирован под размер. 
+Это ведёт к ряду преимуществ и недостатков:
+
+- 2k, tree shakable
+- API минимален, но выразителен. 
+- nanostores лучше чем большие библиотеки, чем jotai или recoil
+
+[Смотрим слайды]
+
+Утилиты:
+- аналог tanstack query, router, i18n 
+- Плюс: работает везде
+- Минус: меньше фич и хуже тулинг
+-->
+
+---
+
+
+# Толстые клиенты
+
+- фото и видео редакторы
+- карты
+- соц сети
+- бэкофисы со сложной функциональностью
+- крупные PWA
+- web3 приложухи
+
+<!--
+Если в нашем приложении есть какой-то сложный процесс, то может понадобиться какой-то инструмент для его описания
+
+Тут выбор будет зависеть от ваших вкусов
+
+Секты
+
+я в секте реактивщины
+
+Важен баланс между размером, выразительность, сложность инструмента, тулинг
+
+если хотим мы можем использовать и пару дешёвых стейтменеджеров
+-->
 
 ---
 layout: two-cols-header
