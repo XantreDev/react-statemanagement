@@ -1341,7 +1341,7 @@ class: "text-center"
     ![alt text](/github-qr-code.svg)
   :::
   :::div{class="flex flex-col items-start gap-2"}
-    [Twitter/X (Xantre)](https://x.com/Xantre_)
+    [Twitter/X (Xantre_)](https://x.com/Xantre_)
     ![alt text](/twitter-qr-code.svg)
   :::
 ::
